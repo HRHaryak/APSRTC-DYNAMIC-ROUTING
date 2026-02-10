@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Bus, MapPin, Clock, Users, Signal, X } from "lucide-react";
+import { Bus, MapPin, Clock, Users, Signal, X, Wifi, WifiOff } from "lucide-react";
 
 interface BusMarker {
   id: string;
@@ -14,7 +14,7 @@ interface BusMarker {
   driver: string;
 }
 
-const buses: BusMarker[] = [
+const initialBuses: BusMarker[] = [
   { id: "AP09Z4521", route: "47C", lat: 55, lng: 40, status: "critical-delay", delay: 22, occupancy: 95, nextStop: "Kurnool Bus Stand", driver: "R. Venkatesh" },
   { id: "AP07Y3312", route: "12A", lat: 35, lng: 60, status: "minor-delay", delay: 8, occupancy: 82, nextStop: "Vijayawada JN", driver: "S. Prasad" },
   { id: "AP05X1198", route: "5D", lat: 70, lng: 25, status: "on-time", delay: 0, occupancy: 45, nextStop: "Guntur Depot", driver: "M. Lakshmi" },
@@ -39,8 +39,64 @@ const statusGlow = {
   "critical-delay": "glow-status-critical",
 };
 
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
+}
+
+function simulateTick(buses: BusMarker[]): BusMarker[] {
+  return buses.map((bus) => {
+    const dLat = (Math.random() - 0.5) * 1.6;
+    const dLng = (Math.random() - 0.5) * 1.6;
+    const newLat = clamp(bus.lat + dLat, 8, 92);
+    const newLng = clamp(bus.lng + dLng, 8, 92);
+
+    // Occasionally shift delay/occupancy
+    let newDelay = bus.delay + Math.round((Math.random() - 0.45) * 3);
+    newDelay = clamp(newDelay, 0, 60);
+    let newOcc = bus.occupancy + Math.round((Math.random() - 0.5) * 4);
+    newOcc = clamp(newOcc, 10, 100);
+
+    const newStatus: BusMarker["status"] =
+      newDelay === 0 ? "on-time" : newDelay < 15 ? "minor-delay" : "critical-delay";
+
+    return { ...bus, lat: newLat, lng: newLng, delay: newDelay, occupancy: newOcc, status: newStatus };
+  });
+}
+
 export default function LiveMap() {
+  const [buses, setBuses] = useState<BusMarker[]>(initialBuses);
   const [selected, setSelected] = useState<BusMarker | null>(null);
+  const [connected, setConnected] = useState(true);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startSimulation = useCallback(() => {
+    if (intervalRef.current) return;
+    intervalRef.current = setInterval(() => {
+      setBuses((prev) => simulateTick(prev));
+    }, 2000);
+    setConnected(true);
+  }, []);
+
+  const stopSimulation = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setConnected(false);
+  }, []);
+
+  useEffect(() => {
+    startSimulation();
+    return () => stopSimulation();
+  }, [startSimulation, stopSimulation]);
+
+  // Keep selected panel in sync with moving bus
+  useEffect(() => {
+    if (selected) {
+      const updated = buses.find((b) => b.id === selected.id);
+      if (updated) setSelected(updated);
+    }
+  }, [buses]);
 
   return (
     <div className="space-y-4">
@@ -50,6 +106,18 @@ export default function LiveMap() {
           <p className="text-xs text-muted-foreground">Real-time fleet positions — Andhra Pradesh region</p>
         </div>
         <div className="flex items-center gap-4 text-xs">
+          <button
+            onClick={connected ? stopSimulation : startSimulation}
+            className={cn(
+              "flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono transition-colors",
+              connected
+                ? "border-status-ok/30 text-status-ok hover:bg-status-ok/10"
+                : "border-status-critical/30 text-status-critical hover:bg-status-critical/10"
+            )}
+          >
+            {connected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+            {connected ? "LIVE" : "PAUSED"}
+          </button>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-status-ok" /> On-Time</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-status-warn" /> Minor Delay</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-status-critical" /> Critical</span>
