@@ -43,43 +43,59 @@ export default function Login() {
       {/* Tricolor band */}
       <div className="govt-tricolor-top h-1.5 w-full shrink-0" />
 
-      {/* Official Government Header */}
-      <header className="govt-header-gradient py-3 px-6">
-        <div className="mx-auto flex max-w-4xl items-center justify-center gap-4">
-          <img src={ashokaEmblem} alt="National Emblem of India" className="h-10 w-auto" />
-          <div className="text-center">
-            <p className="text-[13px] font-bold text-white tracking-wide uppercase">
-              Government of Andhra Pradesh
-            </p>
-            <p className="text-[10px] text-white/80 tracking-wider">
-              Department of Transport — Andhra Pradesh State Road Transport Corporation
-            </p>
+      {/* Official Government Header — dark navy */}
+      <header className="govt-header-gradient py-4 px-6 shadow-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={ashokaEmblem} alt="National Emblem of India" className="h-12 w-auto brightness-0 invert" />
+            <div>
+              <p className="text-base font-bold text-white tracking-wide">
+                Government of Andhra Pradesh
+              </p>
+              <p className="text-[11px] text-white/75 tracking-wider">
+                Department of Transport
+              </p>
+            </div>
           </div>
-          <img src={apEmblem} alt="Emblem of Andhra Pradesh" className="h-10 w-auto" />
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right">
+              <p className="text-[11px] text-white/75 tracking-wider">
+                Andhra Pradesh State Road
+              </p>
+              <p className="text-[11px] text-white/75 tracking-wider">
+                Transport Corporation
+              </p>
+            </div>
+            <img src={apEmblem} alt="AP State Emblem" className="h-12 w-auto brightness-0 invert opacity-80" />
+          </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <div className="flex flex-1 items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
-          {/* Logo section */}
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/5">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-lg font-bold text-foreground">APSRTC Operations Portal</h1>
-            <p className="text-xs text-muted-foreground mt-1">
+      {/* Sub header — platform name */}
+      <div className="border-b border-border bg-card px-6 py-2">
+        <div className="mx-auto max-w-5xl flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">
               Dynamic Route Optimization Platform
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              Authorized Personnel Only — Official Use
-            </p>
+            </span>
           </div>
+          <span className="text-[10px] text-muted-foreground">Official Use Only</span>
+        </div>
+      </div>
 
+      {/* Main content */}
+      <div className="flex flex-1 items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
           {/* Login card */}
           <div className="rounded-lg border border-border bg-card p-6 shadow-sm govt-card">
+            <div className="mb-5 text-center">
+              <h1 className="text-lg font-bold text-foreground">APSRTC Operations Portal</h1>
+              <p className="text-xs text-muted-foreground mt-1">Authorized Personnel Only</p>
+            </div>
+
             <div className="mb-4 flex items-center gap-2 border-b border-border pb-3">
-              <div className="h-5 w-1 rounded-full bg-primary" />
+              <div className="h-5 w-1 rounded-full bg-accent" />
               <h2 className="text-sm font-semibold text-foreground">
                 {isSignUp ? "New User Registration" : "Official Login"}
               </h2>
@@ -112,7 +128,7 @@ export default function Login() {
 
                 {isSignUp && (
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-foreground">Full Name *</label>
+                    <label className="mb-1.5 block text-xs font-medium text-foreground">Full Name <span className="text-destructive">*</span></label>
                     <input
                       type="text"
                       value={fullName}
@@ -125,7 +141,7 @@ export default function Login() {
 
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-foreground">
-                    {isSignUp ? "Official Email ID *" : "Email ID"}
+                    Email ID {isSignUp && <span className="text-destructive">*</span>}
                   </label>
                   <input
                     type="email"
@@ -188,7 +204,7 @@ export default function Login() {
           </div>
 
           <p className="mt-4 text-center text-[10px] text-muted-foreground">
-            APSRTC Dynamic Route Optimization Platform v1.0 — © Government of Andhra Pradesh
+            © Government of Andhra Pradesh — APSRTC Dynamic Route Optimization Platform v1.0
           </p>
         </div>
       </div>
