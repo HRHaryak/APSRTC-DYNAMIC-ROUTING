@@ -3,7 +3,7 @@ import { Eye, EyeOff, AlertCircle, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import ashokaEmblem from "@/assets/ashoka-emblem.png";
-import apEmblem from "@/assets/ap-emblem.png";
+import apsrtcLogo from "@/assets/apsrtc-logo.png";
 
 export default function Login() {
   const { session, loading, signIn, signUp } = useAuth();
@@ -66,7 +66,7 @@ export default function Login() {
                 Transport Corporation
               </p>
             </div>
-            <img src={apEmblem} alt="AP State Emblem" className="h-12 w-auto brightness-0 invert opacity-80" />
+            <img src={apsrtcLogo} alt="APSRTC Logo" className="h-14 w-auto" />
           </div>
         </div>
       </header>

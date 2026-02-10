@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import ashokaEmblem from "@/assets/ashoka-emblem.png";
-import apEmblem from "@/assets/ap-emblem.png";
+import apsrtcLogo from "@/assets/apsrtc-logo.png";
 
 type AppRole = "admin" | "route_planner" | "control_room" | "depot_official";
 
@@ -68,7 +68,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <img src={apEmblem} alt="AP Emblem" className="h-9 w-auto brightness-0 invert opacity-80" />
+            <img src={apsrtcLogo} alt="APSRTC Logo" className="h-10 w-auto" />
             <div className="hidden md:block text-right">
               <p className="text-xs text-white/90 font-medium">{profile?.full_name || "User"}</p>
               <p className="text-[10px] text-white/60">{roleLabel}</p>
