@@ -85,6 +85,18 @@
     background: linear-gradient(135deg, hsl(220, 25%, 18%) 0%, hsl(220, 40%, 28%) 100%);
   }
 
+  .govt-tricolor-top {
+    background: linear-gradient(to right, hsl(25, 90%, 52%) 0%, hsl(25, 90%, 52%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(152, 60%, 30%) 66.66%, hsl(152, 60%, 30%) 100%);
+  }
+
+  .govt-tricolor-bottom {
+    background: linear-gradient(to right, hsl(152, 60%, 30%) 0%, hsl(152, 60%, 30%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(25, 90%, 52%) 66.66%, hsl(25, 90%, 52%) 100%);
+  }
+
+  .govt-card {
+    border-top: 3px solid hsl(25, 90%, 52%);
+  }
+
   .glow-status-ok {
     box-shadow: 0 0 8px hsl(var(--status-ok) / 0.25);
   }
