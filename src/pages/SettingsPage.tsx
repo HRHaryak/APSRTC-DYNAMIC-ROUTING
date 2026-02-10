@@ -12,7 +12,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">Settings</h1>
+        <h1 className="text-xl font-bold text-foreground">Settings</h1>
         <p className="text-xs text-muted-foreground">System configuration & role management</p>
       </div>
 
@@ -30,7 +30,7 @@ export default function SettingsPage() {
                 <p className="text-xs text-muted-foreground">{r.permissions}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-[10px] font-mono text-muted-foreground">
+                <span className="flex items-center gap-1 rounded border border-border bg-secondary px-2 py-0.5 text-[10px] font-mono text-muted-foreground">
                   <Users className="h-3 w-3" /> {r.users}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
               <span className="text-xs text-muted-foreground">{pref.label}</span>
               <span className={cn(
                 "rounded px-2 py-0.5 text-[10px] font-semibold",
-                pref.enabled ? "bg-status-ok/20 text-status-ok" : "bg-secondary text-muted-foreground"
+                pref.enabled ? "bg-status-ok/15 text-status-ok" : "bg-secondary text-muted-foreground"
               )}>
                 {pref.enabled ? "Enabled" : "Disabled"}
               </span>
