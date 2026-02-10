@@ -2,68 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 12%;
+    --background: 210 20% 96%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 220 70% 35%;
+    --primary: 215 65% 30%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 25% 30%;
+    --secondary: 210 15% 92%;
+    --secondary-foreground: 215 25% 25%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 210 12% 93%;
+    --muted-foreground: 215 10% 45%;
 
-    --accent: 220 60% 45%;
+    --accent: 25 85% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 86%;
-    --input: 220 13% 86%;
-    --ring: 220 70% 35%;
+    --border: 210 15% 85%;
+    --input: 210 15% 85%;
+    --ring: 215 65% 30%;
 
     --radius: 0.375rem;
 
-    --status-ok: 152 60% 36%;
+    --status-ok: 152 55% 38%;
     --status-warn: 36 80% 48%;
     --status-critical: 0 72% 50%;
     --status-ok-foreground: 0 0% 100%;
     --status-warn-foreground: 0 0% 10%;
     --status-critical-foreground: 0 0% 100%;
 
-    --sidebar-background: 220 25% 18%;
-    --sidebar-foreground: 220 14% 78%;
-    --sidebar-primary: 45 90% 55%;
-    --sidebar-primary-foreground: 220 25% 12%;
-    --sidebar-accent: 220 25% 24%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 20% 25%;
-    --sidebar-ring: 45 90% 55%;
+    /* Light sidebar — white/cream background, dark text */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 25% 25%;
+    --sidebar-primary: 215 65% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 95%;
+    --sidebar-accent-foreground: 215 25% 15%;
+    --sidebar-border: 210 15% 88%;
+    --sidebar-ring: 215 65% 30%;
 
-    --chart-1: 220 70% 35%;
-    --chart-2: 152 60% 36%;
+    --chart-1: 215 65% 30%;
+    --chart-2: 152 55% 38%;
     --chart-3: 36 80% 48%;
     --chart-4: 0 72% 50%;
-    --chart-5: 200 65% 45%;
+    --chart-5: 200 60% 42%;
 
     --kpi-bg: 0 0% 100%;
-    --kpi-border: 220 13% 86%;
+    --kpi-border: 210 15% 88%;
 
-    --govt-saffron: 25 90% 52%;
-    --govt-green: 152 60% 30%;
-    --govt-navy: 220 60% 20%;
+    --govt-saffron: 25 85% 50%;
+    --govt-white: 0 0% 100%;
+    --govt-green: 140 55% 30%;
+    --govt-navy: 215 65% 20%;
   }
 
   * {
@@ -82,19 +84,19 @@
 
 @layer utilities {
   .govt-header-gradient {
-    background: linear-gradient(135deg, hsl(220, 25%, 18%) 0%, hsl(220, 40%, 28%) 100%);
+    background: linear-gradient(135deg, hsl(215, 65%, 20%) 0%, hsl(215, 55%, 30%) 100%);
   }
 
   .govt-tricolor-top {
-    background: linear-gradient(to right, hsl(25, 90%, 52%) 0%, hsl(25, 90%, 52%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(152, 60%, 30%) 66.66%, hsl(152, 60%, 30%) 100%);
+    background: linear-gradient(to right, hsl(25, 85%, 50%) 0%, hsl(25, 85%, 50%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(140, 55%, 30%) 66.66%, hsl(140, 55%, 30%) 100%);
   }
 
   .govt-tricolor-bottom {
-    background: linear-gradient(to right, hsl(152, 60%, 30%) 0%, hsl(152, 60%, 30%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(25, 90%, 52%) 66.66%, hsl(25, 90%, 52%) 100%);
+    background: linear-gradient(to right, hsl(140, 55%, 30%) 0%, hsl(140, 55%, 30%) 33.33%, hsl(0, 0%, 100%) 33.33%, hsl(0, 0%, 100%) 66.66%, hsl(25, 85%, 50%) 66.66%, hsl(25, 85%, 50%) 100%);
   }
 
   .govt-card {
-    border-top: 3px solid hsl(25, 90%, 52%);
+    border-top: 3px solid hsl(25, 85%, 50%);
   }
 
   .glow-status-ok {
