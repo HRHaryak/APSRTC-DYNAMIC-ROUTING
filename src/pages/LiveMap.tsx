@@ -49,16 +49,12 @@ function simulateTick(buses: BusMarker[]): BusMarker[] {
     const dLng = (Math.random() - 0.5) * 1.6;
     const newLat = clamp(bus.lat + dLat, 8, 92);
     const newLng = clamp(bus.lng + dLng, 8, 92);
-
-    // Occasionally shift delay/occupancy
     let newDelay = bus.delay + Math.round((Math.random() - 0.45) * 3);
     newDelay = clamp(newDelay, 0, 60);
     let newOcc = bus.occupancy + Math.round((Math.random() - 0.5) * 4);
     newOcc = clamp(newOcc, 10, 100);
-
     const newStatus: BusMarker["status"] =
       newDelay === 0 ? "on-time" : newDelay < 15 ? "minor-delay" : "critical-delay";
-
     return { ...bus, lat: newLat, lng: newLng, delay: newDelay, occupancy: newOcc, status: newStatus };
   });
 }
@@ -90,7 +86,6 @@ export default function LiveMap() {
     return () => stopSimulation();
   }, [startSimulation, stopSimulation]);
 
-  // Keep selected panel in sync with moving bus
   useEffect(() => {
     if (selected) {
       const updated = buses.find((b) => b.id === selected.id);
@@ -102,17 +97,17 @@ export default function LiveMap() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Live Bus Tracking</h1>
+          <h1 className="text-xl font-bold text-foreground">Live Bus Tracking</h1>
           <p className="text-xs text-muted-foreground">Real-time fleet positions — Andhra Pradesh region</p>
         </div>
         <div className="flex items-center gap-4 text-xs">
           <button
             onClick={connected ? stopSimulation : startSimulation}
             className={cn(
-              "flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono transition-colors",
+              "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-medium transition-colors",
               connected
-                ? "border-status-ok/30 text-status-ok hover:bg-status-ok/10"
-                : "border-status-critical/30 text-status-critical hover:bg-status-critical/10"
+                ? "border-status-ok/40 text-status-ok bg-status-ok/5 hover:bg-status-ok/10"
+                : "border-status-critical/40 text-status-critical bg-status-critical/5 hover:bg-status-critical/10"
             )}
           >
             {connected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
@@ -124,15 +119,15 @@ export default function LiveMap() {
         </div>
       </div>
 
-      <div className="relative rounded-lg border border-kpi-border bg-kpi overflow-hidden" style={{ height: "calc(100vh - 180px)" }}>
+      <div className="relative rounded-lg border border-kpi-border bg-kpi overflow-hidden" style={{ height: "calc(100vh - 200px)" }}>
         {/* Map Grid Background */}
-        <div className="absolute inset-0 ops-grid opacity-60" />
+        <div className="absolute inset-0 ops-grid opacity-40" />
 
         {/* Decorative routes */}
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path d="M10,50 Q30,20 55,40 T90,30" fill="none" stroke="hsl(210, 100%, 56%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.4" />
-          <path d="M5,80 Q25,60 50,65 T95,45" fill="none" stroke="hsl(192, 90%, 50%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.3" />
-          <path d="M15,20 Q40,40 60,30 T85,70" fill="none" stroke="hsl(142, 76%, 40%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.3" />
+          <path d="M10,50 Q30,20 55,40 T90,30" fill="none" stroke="hsl(220, 70%, 35%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.3" />
+          <path d="M5,80 Q25,60 50,65 T95,45" fill="none" stroke="hsl(200, 65%, 45%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.2" />
+          <path d="M15,20 Q40,40 60,30 T85,70" fill="none" stroke="hsl(152, 60%, 36%)" strokeWidth="0.15" strokeDasharray="1,1" opacity="0.2" />
         </svg>
 
         {/* City labels */}
@@ -146,7 +141,7 @@ export default function LiveMap() {
         ].map((city) => (
           <div
             key={city.name}
-            className="absolute text-[9px] text-muted-foreground/60 font-mono"
+            className="absolute text-[9px] text-muted-foreground/70 font-medium"
             style={{ left: `${city.x}%`, top: `${city.y}%` }}
           >
             <MapPin className="inline h-2.5 w-2.5 mr-0.5" />
@@ -160,7 +155,7 @@ export default function LiveMap() {
             key={bus.id}
             onClick={() => setSelected(bus)}
             className={cn(
-              "absolute z-10 flex h-5 w-5 items-center justify-center rounded-full transition-transform hover:scale-150",
+              "absolute z-10 flex h-5 w-5 items-center justify-center rounded-full transition-transform hover:scale-150 border border-white/60",
               statusColor[bus.status],
               statusGlow[bus.status],
               selected?.id === bus.id && "scale-150 ring-2 ring-foreground"
@@ -168,20 +163,20 @@ export default function LiveMap() {
             style={{ left: `${bus.lng}%`, top: `${bus.lat}%`, transform: "translate(-50%, -50%)" }}
             title={`${bus.route} — ${bus.id}`}
           >
-            <Bus className="h-2.5 w-2.5 text-foreground" />
+            <Bus className="h-2.5 w-2.5 text-white" />
           </button>
         ))}
 
         {/* Side Panel */}
         {selected && (
-          <div className="absolute right-0 top-0 h-full w-72 border-l border-border bg-card/95 backdrop-blur-sm p-4 space-y-4 overflow-y-auto z-20">
+          <div className="absolute right-0 top-0 h-full w-72 border-l border-border bg-card/98 backdrop-blur-sm p-4 space-y-4 overflow-y-auto z-20 shadow-lg">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Bus Details</h3>
+              <h3 className="text-sm font-bold text-foreground">Bus Details</h3>
               <button onClick={() => setSelected(null)} className="rounded p-1 hover:bg-secondary"><X className="h-3.5 w-3.5" /></button>
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-md bg-secondary p-3 space-y-2">
+              <div className="rounded-md border border-border bg-secondary/50 p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-muted-foreground">Vehicle ID</span>
                   <span className="font-mono text-xs font-semibold text-foreground">{selected.id}</span>
@@ -197,7 +192,7 @@ export default function LiveMap() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 rounded-md bg-secondary p-3">
+                <div className="flex items-center gap-2 rounded-md border border-border bg-secondary/50 p-3">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-[10px] text-muted-foreground">Delay</p>
@@ -210,7 +205,7 @@ export default function LiveMap() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 rounded-md bg-secondary p-3">
+                <div className="flex items-center gap-2 rounded-md border border-border bg-secondary/50 p-3">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-[10px] text-muted-foreground">Occupancy</p>
@@ -223,7 +218,7 @@ export default function LiveMap() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 rounded-md bg-secondary p-3">
+                <div className="flex items-center gap-2 rounded-md border border-border bg-secondary/50 p-3">
                   <Signal className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-[10px] text-muted-foreground">Status</p>
@@ -234,7 +229,7 @@ export default function LiveMap() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 rounded-md bg-secondary p-3">
+                <div className="flex items-center gap-2 rounded-md border border-border bg-secondary/50 p-3">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-[10px] text-muted-foreground">Next Stop</p>

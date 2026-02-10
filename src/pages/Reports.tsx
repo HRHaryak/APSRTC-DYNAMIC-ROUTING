@@ -1,6 +1,6 @@
 import { FileBarChart, Download, Calendar, TrendingUp, Clock, Bus, Users } from "lucide-react";
 import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   PieChart, Pie, Cell,
 } from "recharts";
 
@@ -15,10 +15,10 @@ const weeklyDelay = [
 ];
 
 const fleetUtil = [
-  { name: "Active", value: 1247, color: "hsl(142, 76%, 40%)" },
-  { name: "Maintenance", value: 85, color: "hsl(38, 92%, 50%)" },
-  { name: "Idle", value: 38, color: "hsl(0, 84%, 55%)" },
-  { name: "Standby", value: 120, color: "hsl(210, 100%, 56%)" },
+  { name: "Active", value: 1247, color: "hsl(152, 60%, 36%)" },
+  { name: "Maintenance", value: 85, color: "hsl(36, 80%, 48%)" },
+  { name: "Idle", value: 38, color: "hsl(0, 72%, 50%)" },
+  { name: "Standby", value: 120, color: "hsl(220, 70%, 35%)" },
 ];
 
 const congestionData = [
@@ -32,23 +32,26 @@ const congestionData = [
   { zone: "Ongole Station", score: 42 },
 ];
 
-const tooltipStyle = {
-  contentStyle: { backgroundColor: "hsl(222, 44%, 9%)", border: "1px solid hsl(222, 30%, 18%)", borderRadius: "8px", fontSize: "12px" },
+const chartTooltipStyle = {
+  contentStyle: { backgroundColor: "hsl(0, 0%, 100%)", border: "1px solid hsl(220, 13%, 86%)", borderRadius: "6px", fontSize: "12px", color: "hsl(220, 25%, 12%)" },
 };
+
+const gridColor = "hsl(220, 13%, 90%)";
+const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
 
 export default function Reports() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Reports & Trends</h1>
+          <h1 className="text-xl font-bold text-foreground">Reports & Trends</h1>
           <p className="text-xs text-muted-foreground">Performance analytics and export-ready reports</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors">
+          <button className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:bg-secondary transition-colors">
             <Calendar className="h-3 w-3" /> Last 7 Days
           </button>
-          <button className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+          <button className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
             <Download className="h-3 w-3" /> Export PDF
           </button>
         </div>
@@ -59,7 +62,7 @@ export default function Reports() {
         {[
           { label: "Avg Delay Reduction", value: "-38%", icon: Clock, color: "text-status-ok" },
           { label: "Fleet Utilization", value: "83.6%", icon: Bus, color: "text-primary" },
-          { label: "Routes Optimized", value: "24", icon: TrendingUp, color: "text-accent" },
+          { label: "Routes Optimized", value: "24", icon: TrendingUp, color: "text-primary" },
           { label: "Passengers Served", value: "2.4M", icon: Users, color: "text-status-warn" },
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-3 rounded-lg border border-kpi-border bg-kpi p-3">
@@ -81,13 +84,13 @@ export default function Reports() {
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={weeklyDelay}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <Tooltip {...tooltipStyle} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={tickStyle} axisLine={false} tickLine={false} />
+              <Tooltip {...chartTooltipStyle} />
               <Legend wrapperStyle={{ fontSize: "11px" }} />
-              <Bar dataKey="before" fill="hsl(0, 84%, 55%)" radius={[4, 4, 0, 0]} name="Before (min)" />
-              <Bar dataKey="after" fill="hsl(142, 76%, 40%)" radius={[4, 4, 0, 0]} name="After (min)" />
+              <Bar dataKey="before" fill="hsl(0, 72%, 50%)" radius={[4, 4, 0, 0]} name="Before (min)" />
+              <Bar dataKey="after" fill="hsl(152, 60%, 36%)" radius={[4, 4, 0, 0]} name="After (min)" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -95,18 +98,18 @@ export default function Reports() {
         {/* Fleet Utilization Pie */}
         <div className="rounded-lg border border-kpi-border bg-kpi p-4">
           <div className="mb-4 flex items-center gap-2">
-            <Bus className="h-4 w-4 text-accent" />
+            <Bus className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Fleet Status Distribution</h3>
           </div>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width="50%" height={220}>
               <PieChart>
-                <Pie data={fleetUtil} cx="50%" cy="50%" outerRadius={80} innerRadius={50} dataKey="value" strokeWidth={2} stroke="hsl(222, 47%, 6%)">
+                <Pie data={fleetUtil} cx="50%" cy="50%" outerRadius={80} innerRadius={50} dataKey="value" strokeWidth={2} stroke="hsl(0, 0%, 100%)">
                   {fleetUtil.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip {...tooltipStyle} />
+                <Tooltip {...chartTooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-2">
@@ -129,13 +132,13 @@ export default function Reports() {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={congestionData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} domain={[0, 100]} />
-              <YAxis dataKey="zone" type="category" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} width={120} />
-              <Tooltip {...tooltipStyle} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+              <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} domain={[0, 100]} />
+              <YAxis dataKey="zone" type="category" tick={tickStyle} axisLine={false} tickLine={false} width={120} />
+              <Tooltip {...chartTooltipStyle} />
               <Bar dataKey="score" radius={[0, 4, 4, 0]} name="Congestion Score">
                 {congestionData.map((entry, i) => (
-                  <Cell key={i} fill={entry.score > 80 ? "hsl(0, 84%, 55%)" : entry.score > 60 ? "hsl(38, 92%, 50%)" : "hsl(142, 76%, 40%)"} />
+                  <Cell key={i} fill={entry.score > 80 ? "hsl(0, 72%, 50%)" : entry.score > 60 ? "hsl(36, 80%, 48%)" : "hsl(152, 60%, 36%)"} />
                 ))}
               </Bar>
             </BarChart>

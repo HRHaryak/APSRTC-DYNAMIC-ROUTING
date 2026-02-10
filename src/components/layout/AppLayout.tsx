@@ -32,25 +32,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300",
+          "flex flex-col bg-sidebar transition-all duration-300",
           collapsed ? "w-16" : "w-60"
         )}
       >
-        {/* Logo */}
-        <div className="flex h-14 items-center gap-3 border-b border-sidebar-border px-4">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary">
-            <Bus className="h-4 w-4 text-primary-foreground" />
+        {/* Header with Ashoka-style branding */}
+        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-primary">
+            <Bus className="h-4.5 w-4.5 text-sidebar-primary-foreground" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="truncate text-sm font-semibold text-sidebar-accent-foreground">APSRTC</p>
-              <p className="truncate text-[10px] text-muted-foreground">Ops Command</p>
+              <p className="truncate text-sm font-bold text-white tracking-wide">APSRTC</p>
+              <p className="truncate text-[10px] text-sidebar-foreground">Govt. of Andhra Pradesh</p>
             </div>
           )}
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 p-2 overflow-y-auto scrollbar-thin">
+        <nav className="flex-1 space-y-0.5 p-2 overflow-y-auto scrollbar-thin">
           {navItems.map((item) => {
             const isActive = location.pathname === item.to;
             return (
@@ -60,8 +60,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-primary glow-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-sidebar-accent text-sidebar-primary"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -72,15 +72,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-sidebar-border p-2 space-y-1">
+        <div className="border-t border-sidebar-border p-2 space-y-0.5">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors"
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             {!collapsed && <span>Collapse</span>}
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-destructive hover:bg-sidebar-accent transition-colors">
+          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors">
             <LogOut className="h-4 w-4" />
             {!collapsed && <span>Logout</span>}
           </button>
@@ -88,9 +88,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto scrollbar-thin">
-        <div className="p-6">{children}</div>
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <header className="flex h-12 items-center justify-between border-b border-border bg-card px-6">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Dynamic Route Optimization Platform</span>
+            <span>•</span>
+            <span>APSRTC</span>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span>v1.0.0</span>
+            <span className="h-4 w-px bg-border" />
+            <span>Admin</span>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto scrollbar-thin">
+          <div className="p-6">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default function AlertsPanel() {
     <div className="rounded-lg border border-kpi-border bg-kpi">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h3 className="text-sm font-semibold text-foreground">Live Alerts</h3>
-        <span className="rounded-full bg-status-critical/20 px-2 py-0.5 text-[10px] font-semibold text-status-critical">
+        <span className="rounded-full border border-status-critical/30 bg-status-critical/10 px-2 py-0.5 text-[10px] font-semibold text-status-critical">
           {alerts.filter((a) => a.type === "critical").length} Critical
         </span>
       </div>

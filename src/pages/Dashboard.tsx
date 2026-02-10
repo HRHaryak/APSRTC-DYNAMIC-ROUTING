@@ -45,17 +45,25 @@ const routePerf = [
   { route: "66A", score: 91 },
 ];
 
+const chartTooltipStyle = {
+  contentStyle: { backgroundColor: "hsl(0, 0%, 100%)", border: "1px solid hsl(220, 13%, 86%)", borderRadius: "6px", fontSize: "12px", color: "hsl(220, 25%, 12%)" },
+  labelStyle: { color: "hsl(220, 25%, 12%)" },
+};
+
+const gridColor = "hsl(220, 13%, 90%)";
+const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
+
 export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">City Operations Dashboard</h1>
+          <h1 className="text-xl font-bold text-foreground">City Operations Dashboard</h1>
           <p className="text-xs text-muted-foreground">Real-time fleet overview — Last updated 30s ago</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs text-status-ok">
+          <span className="flex items-center gap-1.5 text-xs text-status-ok font-medium">
             <span className="h-2 w-2 rounded-full bg-status-ok pulse-dot" />
             System Online
           </span>
@@ -82,18 +90,15 @@ export default function Dashboard() {
             <AreaChart data={trendData}>
               <defs>
                 <linearGradient id="ontimeGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(210, 100%, 56%)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(210, 100%, 56%)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(220, 70%, 35%)" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="hsl(220, 70%, 35%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} domain={[60, 100]} />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(222, 44%, 9%)", border: "1px solid hsl(222, 30%, 18%)", borderRadius: "8px", fontSize: "12px" }}
-                labelStyle={{ color: "hsl(210, 40%, 92%)" }}
-              />
-              <Area type="monotone" dataKey="ontime" stroke="hsl(210, 100%, 56%)" fill="url(#ontimeGrad)" strokeWidth={2} name="On-Time %" />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="time" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={tickStyle} axisLine={false} tickLine={false} domain={[60, 100]} />
+              <Tooltip {...chartTooltipStyle} />
+              <Area type="monotone" dataKey="ontime" stroke="hsl(220, 70%, 35%)" fill="url(#ontimeGrad)" strokeWidth={2} name="On-Time %" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -111,13 +116,13 @@ export default function Dashboard() {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={routePerf} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} domain={[0, 100]} />
-              <YAxis dataKey="route" type="category" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} width={35} />
-              <Tooltip contentStyle={{ backgroundColor: "hsl(222, 44%, 9%)", border: "1px solid hsl(222, 30%, 18%)", borderRadius: "8px", fontSize: "12px" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
+              <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} domain={[0, 100]} />
+              <YAxis dataKey="route" type="category" tick={tickStyle} axisLine={false} tickLine={false} width={35} />
+              <Tooltip {...chartTooltipStyle} />
               <Bar dataKey="score" radius={[0, 4, 4, 0]} name="Score">
                 {routePerf.map((entry, i) => (
-                  <rect key={i} fill={entry.score > 80 ? "hsl(142, 76%, 40%)" : entry.score > 60 ? "hsl(38, 92%, 50%)" : "hsl(0, 84%, 55%)"} />
+                  <rect key={i} fill={entry.score > 80 ? "hsl(152, 60%, 36%)" : entry.score > 60 ? "hsl(36, 80%, 48%)" : "hsl(0, 72%, 50%)"} />
                 ))}
               </Bar>
             </BarChart>
@@ -127,22 +132,22 @@ export default function Dashboard() {
         {/* Occupancy trend */}
         <div className="rounded-lg border border-kpi-border bg-kpi p-4">
           <div className="mb-4 flex items-center gap-2">
-            <Users className="h-4 w-4 text-accent" />
+            <Users className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Fleet Occupancy (24h)</h3>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={trendData}>
               <defs>
                 <linearGradient id="occGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(192, 90%, 50%)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(192, 90%, 50%)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(200, 65%, 45%)" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="hsl(200, 65%, 45%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} domain={[0, 100]} />
-              <Tooltip contentStyle={{ backgroundColor: "hsl(222, 44%, 9%)", border: "1px solid hsl(222, 30%, 18%)", borderRadius: "8px", fontSize: "12px" }} />
-              <Area type="monotone" dataKey="occupancy" stroke="hsl(192, 90%, 50%)" fill="url(#occGrad)" strokeWidth={2} name="Occupancy %" />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="time" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={tickStyle} axisLine={false} tickLine={false} domain={[0, 100]} />
+              <Tooltip {...chartTooltipStyle} />
+              <Area type="monotone" dataKey="occupancy" stroke="hsl(200, 65%, 45%)" fill="url(#occGrad)" strokeWidth={2} name="Occupancy %" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

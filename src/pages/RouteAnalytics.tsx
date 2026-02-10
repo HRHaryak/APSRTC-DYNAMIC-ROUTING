@@ -34,10 +34,13 @@ const delayDistribution = [
   { range: "20m+", count: 4 },
 ];
 
-const tooltipStyle = {
-  contentStyle: { backgroundColor: "hsl(222, 44%, 9%)", border: "1px solid hsl(222, 30%, 18%)", borderRadius: "8px", fontSize: "12px" },
-  labelStyle: { color: "hsl(210, 40%, 92%)" },
+const chartTooltipStyle = {
+  contentStyle: { backgroundColor: "hsl(0, 0%, 100%)", border: "1px solid hsl(220, 13%, 86%)", borderRadius: "6px", fontSize: "12px", color: "hsl(220, 25%, 12%)" },
+  labelStyle: { color: "hsl(220, 25%, 12%)" },
 };
+
+const gridColor = "hsl(220, 13%, 90%)";
+const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
 
 export default function RouteAnalytics() {
   const [selectedRoute, setSelectedRoute] = useState("12A");
@@ -46,14 +49,14 @@ export default function RouteAnalytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Route Analytics</h1>
+          <h1 className="text-xl font-bold text-foreground">Route Analytics</h1>
           <p className="text-xs text-muted-foreground">Detailed performance breakdown by route</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors">
+          <button className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:bg-secondary transition-colors">
             <Filter className="h-3 w-3" /> Filters
           </button>
-          <button className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors">
+          <button className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:bg-secondary transition-colors">
             <Download className="h-3 w-3" /> Export
           </button>
         </div>
@@ -66,10 +69,10 @@ export default function RouteAnalytics() {
             key={r}
             onClick={() => setSelectedRoute(r)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-mono font-medium transition-colors",
+              "rounded-md px-3 py-1.5 text-xs font-mono font-medium transition-colors border",
               selectedRoute === r
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground border-border hover:text-foreground hover:border-primary/30"
             )}
           >
             Route {r}
@@ -82,7 +85,7 @@ export default function RouteAnalytics() {
         {[
           { label: "Utilization", value: "78%", icon: Gauge, color: "text-primary" },
           { label: "Avg Delay", value: "8.3 min", icon: Clock, color: "text-status-warn" },
-          { label: "Daily Riders", value: "12,450", icon: Users, color: "text-accent" },
+          { label: "Daily Riders", value: "12,450", icon: Users, color: "text-primary" },
           { label: "Trend", value: "▲ 4.2%", icon: TrendingUp, color: "text-status-ok" },
         ].map((stat) => (
           <div key={stat.label} className="flex items-center gap-3 rounded-lg border border-kpi-border bg-kpi p-3">
@@ -104,13 +107,13 @@ export default function RouteAnalytics() {
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={demandData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" />
-              <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <Tooltip {...tooltipStyle} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="hour" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={tickStyle} axisLine={false} tickLine={false} />
+              <Tooltip {...chartTooltipStyle} />
               <Legend wrapperStyle={{ fontSize: "11px" }} />
-              <Line type="monotone" dataKey="demand" stroke="hsl(0, 84%, 55%)" strokeWidth={2} dot={false} name="Demand" />
-              <Line type="monotone" dataKey="capacity" stroke="hsl(142, 76%, 40%)" strokeWidth={2} strokeDasharray="5 5" dot={false} name="Capacity" />
+              <Line type="monotone" dataKey="demand" stroke="hsl(0, 72%, 50%)" strokeWidth={2} dot={false} name="Demand" />
+              <Line type="monotone" dataKey="capacity" stroke="hsl(152, 60%, 36%)" strokeWidth={2} strokeDasharray="5 5" dot={false} name="Capacity" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -122,11 +125,11 @@ export default function RouteAnalytics() {
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={delayDistribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(222, 30%, 18%)" vertical={false} />
-              <XAxis dataKey="range" tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "hsl(215, 20%, 55%)" }} axisLine={false} tickLine={false} />
-              <Tooltip {...tooltipStyle} />
-              <Bar dataKey="count" fill="hsl(210, 100%, 56%)" radius={[4, 4, 0, 0]} name="Bus Count" />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis dataKey="range" tick={tickStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={tickStyle} axisLine={false} tickLine={false} />
+              <Tooltip {...chartTooltipStyle} />
+              <Bar dataKey="count" fill="hsl(220, 70%, 35%)" radius={[4, 4, 0, 0]} name="Bus Count" />
             </BarChart>
           </ResponsiveContainer>
         </div>
