@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Map,
@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -26,6 +27,17 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut, profile, roles } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  const roleLabel = roles.length > 0
+    ? roles.map(r => r.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())).join(", ")
+    : "User";
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -80,7 +92,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             {!collapsed && <span>Collapse</span>}
           </button>
-          <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-white transition-colors"
+          >
             <LogOut className="h-4 w-4" />
             {!collapsed && <span>Logout</span>}
           </button>
@@ -99,7 +114,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>v1.0.0</span>
             <span className="h-4 w-px bg-border" />
-            <span>Admin</span>
+            <span>{profile?.full_name || "User"}</span>
+            <span className="h-4 w-px bg-border" />
+            <span className="font-semibold text-primary">{roleLabel}</span>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto scrollbar-thin">
