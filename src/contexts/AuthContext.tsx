@@ -1,17 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User } from "@supabase/supabase-js"; // Keeping User type or we can define our own, but to minimize breakage we can mock it or use a simple interface
 
 // Simple User Interface matching backend response
 interface SimpleUser {
-  id: string;
+  username: string;
   email: string;
   full_name: string;
   role: string;
 }
-
-// Map SimpleUser to a structure compatible with the app's existing usage (Supabase User-like)
-// The app uses `User` from supabase which has `id`, `email`, etc.
-// We can cast our SimpleUser to any to allow it to pass as User for now, or define a compatible type.
 
 interface AuthContextType {
   session: { access_token: string, user: SimpleUser } | null;
@@ -19,7 +14,7 @@ interface AuthContextType {
   roles: string[];
   profile: { full_name: string | null; employee_id: string | null } | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (username: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: string) => boolean;
@@ -55,17 +50,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (username: string, password: string) => {
     try {
-      // Point to FastApi backend
-      // Assuming Vite proxy is set up or using direct URL. 
-      // Based on previous context, backend runs on 8000.
+      // Use OAuth2 password flow - FormData format required
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
+
       const response = await fetch("http://localhost:8000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -88,16 +82,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { error: null };
     } catch (err) {
+      console.error("Sign in error:", err);
       return { error: "Network error or server unavailable" };
     }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    // For now, sign up is disabled or just mock it to fail/succeed
-    return { error: "Registration is disabled in this mode. Please use the admin credentials." };
+    // Registration requires admin privileges
+    return { error: "Registration requires admin privileges. Please contact your administrator." };
   };
 
   const signOut = async () => {
+    // Call logout endpoint
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      try {
+        await fetch("http://localhost:8000/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        console.error("Logout error:", err);
+      }
+    }
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_data");
     setSession(null);

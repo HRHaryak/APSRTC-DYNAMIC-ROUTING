@@ -258,8 +258,15 @@ class TransportSimulation:
     async def run(self):
         self.running = True
         print("Simulation started.")
+        iteration = 0
         while self.running:
             self.update(1.0) # Update every second
+            iteration += 1
+            if iteration % 10 == 0:  # Log every 10 seconds
+                bus_count = len(self.buses)
+                sample_bus = list(self.buses.values())[0] if self.buses else None
+                if sample_bus:
+                    print(f"[SIM] Iteration {iteration}: {bus_count} buses active. Sample bus at ({sample_bus.lat:.4f}, {sample_bus.lon:.4f})")
             await asyncio.sleep(1.0)
 
     def update(self, delta_seconds: float):

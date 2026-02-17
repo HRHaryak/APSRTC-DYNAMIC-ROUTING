@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
+import AnomaliesWidget from "@/components/dashboard/AnomaliesWidget";
 import {
   AreaChart,
   Area,
@@ -63,8 +64,8 @@ export default function Dashboard() {
 
   const { data: kpis, isLoading } = useQuery<KPIResponse>({
     queryKey: ["dashboardKPIs"],
-    queryFn: () => fetchDashboardKPIs(session?.access_token || ""),
-    enabled: !!session?.access_token,
+    queryFn: fetchDashboardKPIs,
+    enabled: !!session,
   });
 
   if (isLoading) {
@@ -77,7 +78,9 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">City Operations Dashboard</h1>
-          <p className="text-xs text-muted-foreground">Real-time fleet overview — Last updated just now</p>
+          <p className="text-xs text-muted-foreground">
+            Welcome, {session?.user?.full_name || 'User'} ({session?.user?.role || 'N/A'}) — Real-time fleet overview
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs text-status-ok font-medium">
@@ -148,8 +151,8 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Alerts */}
-        <AlertsPanel />
+        {/* ML Model Status & Anomalies */}
+        <AnomaliesWidget />
       </div>
 
       {/* Route Performance */}

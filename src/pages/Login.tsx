@@ -7,7 +7,7 @@ import apsrtcLogo from "@/assets/apsrtc-logo.png";
 
 export default function Login() {
   const { session, loading, signIn, signUp } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -22,17 +22,17 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+    if (!username || !password) {
+      setError("Please enter both username and password.");
       return;
     }
     setSubmitting(true);
     if (isSignUp) {
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signUp(username, password, fullName);
       if (error) setError(error);
       else setSignUpSuccess(true);
     } else {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(username, password);
       if (error) setError(error);
     }
     setSubmitting(false);
@@ -126,6 +126,17 @@ export default function Login() {
                   </div>
                 )}
 
+                {/* Default Credentials Notice */}
+                {!isSignUp && (
+                  <div className="flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 p-2.5 text-xs text-primary">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <div>
+                      <strong>Default Users:</strong> admin/planner/control_room/depot<br />
+                      <strong>Password:</strong> &lt;username&gt;123
+                    </div>
+                  </div>
+                )}
+
                 {isSignUp && (
                   <div>
                     <label className="mb-1.5 block text-xs font-medium text-foreground">Full Name <span className="text-destructive">*</span></label>
@@ -141,14 +152,14 @@ export default function Login() {
 
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-foreground">
-                    Email ID {isSignUp && <span className="text-destructive">*</span>}
+                    Username {isSignUp && <span className="text-destructive">*</span>}
                   </label>
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    type="text"
+                    value={username}
+                    onChange={(e) => { setUsername(e.target.value); setError(""); }}
                     className="w-full rounded-md border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    placeholder="employee@apsrtc.ap.gov.in"
+                    placeholder="admin"
                   />
                 </div>
 
@@ -197,8 +208,8 @@ export default function Login() {
           {/* Security notice */}
           <div className="mt-4 rounded-md border border-border bg-muted/50 px-4 py-3">
             <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-              <span className="font-semibold text-foreground">Security Notice:</span> This is a Government of Andhra Pradesh 
-              restricted system. Unauthorized access is prohibited under the Information Technology Act, 2000. 
+              <span className="font-semibold text-foreground">Security Notice:</span> This is a Government of Andhra Pradesh
+              restricted system. Unauthorized access is prohibited under the Information Technology Act, 2000.
               All activities are logged and monitored.
             </p>
           </div>

@@ -24,20 +24,19 @@ import {
 } from "recharts";
 
 const HistoryPage = () => {
-    const { token } = useAuth();
+    const { session } = useAuth();
     const [selectedMonth, setSelectedMonth] = useState<string>("4");
     const [selectedYear, setSelectedYear] = useState<string>("2023");
 
-    console.log("HistoryPage mounted. Token present:", !!token);
+    console.log("HistoryPage mounted. Session present:", !!session);
 
     const { data: stats, isLoading, error } = useQuery<MonthlyStats>({
         queryKey: ["history", selectedYear, selectedMonth],
         queryFn: () => {
             console.log(`Fetching stats for ${selectedMonth}/${selectedYear}`);
-            // Auth is disabled on history endpoint, so pass empty token if not available
-            return fetchMonthlyStats(token || "", parseInt(selectedYear), parseInt(selectedMonth));
+            return fetchMonthlyStats(parseInt(selectedYear), parseInt(selectedMonth));
         },
-        enabled: true, // Always enabled since auth is disabled on backend
+        enabled: !!session,
     });
 
     const months = [

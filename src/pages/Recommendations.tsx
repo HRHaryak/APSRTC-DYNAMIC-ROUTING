@@ -3,7 +3,7 @@ import { Brain, Check, X, MessageSquare, TrendingUp, Clock, Zap, ChevronDown, Ch
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchAIRecommendations } from "@/services/api";
+import { fetchAIRecommendations, submitRecommendationFeedback } from "@/services/api";
 
 interface Recommendation {
   id: string;
@@ -26,8 +26,8 @@ export default function Recommendations() {
 
   const { data: apiRecs, isLoading } = useQuery({
     queryKey: ["aiRecommendations"],
-    queryFn: () => fetchAIRecommendations(session?.access_token || ""),
-    enabled: !!session?.access_token,
+    queryFn: fetchAIRecommendations,
+    enabled: !!session,
   });
 
   useEffect(() => {
@@ -48,8 +48,15 @@ export default function Recommendations() {
     }
   }, [apiRecs]);
 
-  const updateStatus = (id: string, status: "accepted" | "rejected") => {
+  const updateStatus = async (id: string, status: "accepted" | "rejected", comment: string = "") => {
     setRecs((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+
+    // Submit feedback to backend
+    try {
+      await submitRecommendationFeedback(id, status, comment);
+    } catch (error) {
+      console.error("Failed to submit feedback:", error);
+    }
   };
 
   return (
