@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Brain, Check, X, MessageSquare, TrendingUp, Clock, Zap, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchAIRecommendations } from "@/services/api";
 
 interface Recommendation {
   id: string;
@@ -13,50 +16,37 @@ interface Recommendation {
   status: "pending" | "accepted" | "rejected";
 }
 
-const initialRecs: Recommendation[] = [
-  {
-    id: "1", title: "Increase frequency on Route 5D during 7-9 AM",
-    reason: "Consistent overcrowding detected over the past 14 days during morning peak. Average occupancy exceeds 92%.",
-    action: "Add 3 additional buses between 7:00-9:00 AM from Guntur Depot.",
-    impact: "Expected to reduce overcrowding by 35% and improve on-time rate by 8%.",
-    confidence: 94, category: "frequency", status: "pending",
-  },
-  {
-    id: "2", title: "Reroute 47C via bypass road during construction",
-    reason: "NH-44 construction causing 20+ min delays for Route 47C. Alternate route via bypass adds only 4 km.",
-    action: "Temporarily reroute via Kurnool bypass (NH-44B) for next 30 days.",
-    impact: "Expected delay reduction from 22 min to 6 min average.",
-    confidence: 88, category: "reroute", status: "pending",
-  },
-  {
-    id: "3", title: "Deploy larger buses on Route 12A weekends",
-    reason: "Weekend demand on 12A is 40% higher than weekday, but same fleet is used. Passenger complaints increasing.",
-    action: "Replace 3 standard buses with high-capacity buses on Sat-Sun.",
-    impact: "Can serve 180 additional passengers per trip without adding frequency.",
-    confidence: 91, category: "capacity", status: "pending",
-  },
-  {
-    id: "4", title: "Shift Route 88B first departure 30 min earlier",
-    reason: "Data shows 120+ passengers waiting before 5:30 AM at Tirupati, but first bus departs at 6:00 AM.",
-    action: "Move first departure to 5:30 AM and adjust crew schedules accordingly.",
-    impact: "Capture unserved demand and reduce passenger wait time by 25 min.",
-    confidence: 82, category: "schedule", status: "pending",
-  },
-  {
-    id: "5", title: "Reduce frequency on Route 31G post-10 PM",
-    reason: "Occupancy drops below 15% after 10 PM. Operating at a loss during late-night window.",
-    action: "Reduce from 4 buses/hr to 2 buses/hr between 10 PM - 5 AM.",
-    impact: "Save ₹12,000/day in fuel and crew costs with minimal passenger impact.",
-    confidence: 96, category: "frequency", status: "pending",
-  },
-];
-
 const categoryIcon = { frequency: Zap, reroute: TrendingUp, capacity: Brain, schedule: Clock };
 const categoryLabel = { frequency: "Frequency", reroute: "Reroute", capacity: "Capacity", schedule: "Schedule" };
 
 export default function Recommendations() {
-  const [recs, setRecs] = useState(initialRecs);
+  const { session } = useAuth();
+  const [recs, setRecs] = useState<Recommendation[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const { data: apiRecs, isLoading } = useQuery({
+    queryKey: ["aiRecommendations"],
+    queryFn: () => fetchAIRecommendations(session?.access_token || ""),
+    enabled: !!session?.access_token,
+  });
+
+  useEffect(() => {
+    if (apiRecs) {
+      // Transform API models to UI models if strictly needed, or just map fields
+      // API returns: rec_id, route_id, recommendation, reason, expected_impact, confidence, status
+      const mapped: Recommendation[] = apiRecs.map((r: any) => ({
+        id: r.rec_id,
+        title: r.recommendation, // Map recommendation text to title
+        reason: r.reason || "No reason provided",
+        action: r.recommendation, // Reuse recommendation as action
+        impact: r.expected_impact || "Unknown impact",
+        confidence: Math.round(r.confidence * 100), // Decimal to percentage
+        category: "frequency", // Mock category as it's not in API yet
+        status: r.status as any
+      }));
+      setRecs(mapped);
+    }
+  }, [apiRecs]);
 
   const updateStatus = (id: string, status: "accepted" | "rejected") => {
     setRecs((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
@@ -68,6 +58,7 @@ export default function Recommendations() {
         <div>
           <h1 className="text-xl font-bold text-foreground">AI Route Recommendations</h1>
           <p className="text-xs text-muted-foreground">AI-generated insights based on real-time and historical data</p>
+          {isLoading && <span className="text-xs text-primary animate-pulse ml-2">Updating recommendations...</span>}
         </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-status-ok" /> {recs.filter((r) => r.status === "accepted").length} Accepted</span>

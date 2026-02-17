@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Shield,
   Menu,
+  History,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,6 +25,7 @@ const navItems: { to: string; icon: typeof LayoutDashboard; label: string; roles
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/live-map", icon: Map, label: "Live Map", roles: ["admin", "control_room"] },
   { to: "/routes", icon: Route, label: "Route Analytics", roles: ["admin", "route_planner", "depot_official"] },
+  { to: "/history", icon: History, label: "History", roles: ["admin", "route_planner"] },
   { to: "/recommendations", icon: Brain, label: "AI Insights", roles: ["admin", "route_planner"] },
   { to: "/reports", icon: FileBarChart, label: "Reports", roles: ["admin", "control_room", "depot_official"] },
   { to: "/settings", icon: Settings, label: "Settings", roles: ["admin"] },

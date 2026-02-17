@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import SettingsPage from "./pages/SettingsPage";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import HistoryPage from "./pages/History";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/live-map" element={<LiveMap />} />
                       <Route path="/routes" element={<RouteAnalytics />} />
+                      <Route path="/history" element={<HistoryPage />} />
                       <Route path="/recommendations" element={<Recommendations />} />
                       <Route path="/reports" element={<Reports />} />
                       <Route path="/settings" element={<SettingsPage />} />

@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { Route, Filter, Download, TrendingUp, Clock, Users, Gauge } from "lucide-react";
+import { Route, Filter, Download, TrendingUp, Clock, Users, Gauge, IndianRupee, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const routes = ["5D", "12A", "47C", "88B", "23F", "9E", "31G", "66A"];
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchRouteAnalytics } from "@/services/api";
+import type { RouteAnalytics } from "@/types";
 
 const demandData = [
   { hour: "06", demand: 320, capacity: 400 },
@@ -43,7 +45,22 @@ const gridColor = "hsl(220, 13%, 90%)";
 const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
 
 export default function RouteAnalytics() {
-  const [selectedRoute, setSelectedRoute] = useState("12A");
+  const { session } = useAuth();
+  const [selectedRoute, setSelectedRoute] = useState("");
+
+  const { data: analytics, isLoading } = useQuery<RouteAnalytics[]>({
+    queryKey: ["routeAnalytics"],
+    queryFn: () => fetchRouteAnalytics(session?.access_token || ""),
+    enabled: !!session?.access_token,
+  });
+
+  useEffect(() => {
+    if (analytics && analytics.length > 0 && !selectedRoute) {
+      setSelectedRoute(analytics[0].route_id);
+    }
+  }, [analytics, selectedRoute]);
+
+  const selectedData = analytics?.find((r) => r.route_id === selectedRoute);
 
   return (
     <div className="space-y-6">
@@ -51,6 +68,7 @@ export default function RouteAnalytics() {
         <div>
           <h1 className="text-xl font-bold text-foreground">Route Analytics</h1>
           <p className="text-xs text-muted-foreground">Detailed performance breakdown by route</p>
+          {isLoading && <span className="text-xs text-primary animate-pulse ml-2">Loading analytics...</span>}
         </div>
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:bg-secondary transition-colors">
@@ -64,18 +82,18 @@ export default function RouteAnalytics() {
 
       {/* Route Selector */}
       <div className="flex gap-2 flex-wrap">
-        {routes.map((r) => (
+        {analytics?.map((r) => (
           <button
-            key={r}
-            onClick={() => setSelectedRoute(r)}
+            key={r.route_id}
+            onClick={() => setSelectedRoute(r.route_id)}
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-mono font-medium transition-colors border",
-              selectedRoute === r
+              selectedRoute === r.route_id
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-card text-muted-foreground border-border hover:text-foreground hover:border-primary/30"
             )}
           >
-            Route {r}
+            Route {r.route_id}
           </button>
         ))}
       </div>
@@ -83,10 +101,10 @@ export default function RouteAnalytics() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: "Utilization", value: "78%", icon: Gauge, color: "text-primary" },
-          { label: "Avg Delay", value: "8.3 min", icon: Clock, color: "text-status-warn" },
-          { label: "Daily Riders", value: "12,450", icon: Users, color: "text-primary" },
-          { label: "Trend", value: "▲ 4.2%", icon: TrendingUp, color: "text-status-ok" },
+          { label: "Utilization", value: selectedData ? `${Math.round(selectedData.utilization_score * 100)}%` : "--", icon: Gauge, color: "text-primary" },
+          { label: "Avg Delay", value: selectedData ? `${selectedData.avg_delay} min` : "--", icon: Clock, color: "text-status-warn" },
+          { label: "Revenue", value: selectedData ? `₹${selectedData.revenue.toLocaleString()}` : "--", icon: IndianRupee, color: "text-status-ok" },
+          { label: "Reliability", value: selectedData ? `${selectedData.reliability}%` : "--", icon: Activity, color: "text-primary" },
         ].map((stat) => (
           <div key={stat.label} className="flex items-center gap-3 rounded-lg border border-kpi-border bg-kpi p-3">
             <stat.icon className={cn("h-5 w-5", stat.color)} />

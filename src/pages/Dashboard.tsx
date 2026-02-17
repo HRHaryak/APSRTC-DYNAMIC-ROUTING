@@ -5,6 +5,7 @@ import {
   Bus,
   Activity,
   AlertTriangle,
+  IndianRupee,
 } from "lucide-react";
 import KPICard from "@/components/dashboard/KPICard";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
@@ -19,6 +20,10 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchDashboardKPIs } from "@/services/api";
+import { KPIResponse } from "@/types";
 
 const trendData = [
   { time: "00:00", ontime: 92, delay: 4, occupancy: 30 },
@@ -54,13 +59,25 @@ const gridColor = "hsl(220, 13%, 90%)";
 const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
 
 export default function Dashboard() {
+  const { session } = useAuth();
+
+  const { data: kpis, isLoading } = useQuery<KPIResponse>({
+    queryKey: ["dashboardKPIs"],
+    queryFn: () => fetchDashboardKPIs(session?.access_token || ""),
+    enabled: !!session?.access_token,
+  });
+
+  if (isLoading) {
+    return <div className="p-10 text-center">Loading Dashboard...</div>;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">City Operations Dashboard</h1>
-          <p className="text-xs text-muted-foreground">Real-time fleet overview — Last updated 30s ago</p>
+          <p className="text-xs text-muted-foreground">Real-time fleet overview — Last updated just now</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs text-status-ok font-medium">
@@ -72,10 +89,38 @@ export default function Dashboard() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KPICard title="On-Time Rate" value="82.4%" change="▼ 3.1% vs yesterday" changeType="negative" icon={Clock} status="warn" />
-        <KPICard title="Avg Delay" value="7.2 min" change="▲ 1.4 min vs avg" changeType="negative" icon={TrendingDown} status="warn" />
-        <KPICard title="Active Buses" value="1,247" change="98.2% fleet deployed" changeType="positive" icon={Bus} status="ok" />
-        <KPICard title="Overcrowded Routes" value="14" change="3 critical alerts" changeType="negative" icon={Users} status="critical" />
+        <KPICard
+          title="On-Time Rate"
+          value="82.4%"
+          change="▼ 3.1% vs yesterday"
+          changeType="negative"
+          icon={Clock}
+          status="warn"
+        />
+        <KPICard
+          title="Avg Delay"
+          value={kpis ? `${kpis.delayed_buses} min` : "Loading..."}
+          change="▲ 1.4 min vs avg"
+          changeType="negative"
+          icon={TrendingDown}
+          status="warn"
+        />
+        <KPICard
+          title="Active Buses"
+          value={kpis ? kpis.active_buses.toString() : "Loading..."}
+          change={`${kpis ? ((kpis.active_buses / 150) * 100).toFixed(1) : 0}% fleet deployed`}
+          changeType="positive"
+          icon={Bus}
+          status="ok"
+        />
+        <KPICard
+          title="Total Revenue"
+          value={kpis ? `₹${(kpis.total_revenue / 1000).toFixed(1)}k` : "Loading..."}
+          change="+12% vs last week"
+          changeType="positive"
+          icon={IndianRupee}
+          status="ok"
+        />
       </div>
 
       {/* Charts + Alerts */}

@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Bus, MapPin, Clock, Users, Signal, X, Wifi, WifiOff } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchLiveBuses } from "@/services/api";
 
 interface BusMarker {
   id: string;
@@ -60,31 +63,43 @@ function simulateTick(buses: BusMarker[]): BusMarker[] {
 }
 
 export default function LiveMap() {
+  const { session } = useAuth();
+
+  // Fetch live buses every 5 seconds
+  const { data: liveBuses, isError } = useQuery({
+    queryKey: ["liveBuses"],
+    queryFn: () => fetchLiveBuses(session?.access_token || ""),
+    enabled: !!session?.access_token,
+    refetchInterval: 5000,
+  });
+
   const [buses, setBuses] = useState<BusMarker[]>(initialBuses);
   const [selected, setSelected] = useState<BusMarker | null>(null);
   const [connected, setConnected] = useState(true);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const startSimulation = useCallback(() => {
-    if (intervalRef.current) return;
-    intervalRef.current = setInterval(() => {
-      setBuses((prev) => simulateTick(prev));
-    }, 2000);
-    setConnected(true);
-  }, []);
-
-  const stopSimulation = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    setConnected(false);
-  }, []);
-
+  // Transform API data to UI model
   useEffect(() => {
-    startSimulation();
-    return () => stopSimulation();
-  }, [startSimulation, stopSimulation]);
+    if (liveBuses) {
+      const mappedBuses: BusMarker[] = liveBuses.map((b: any) => ({
+        id: b.bus_id,
+        route: b.route_id || "Unknown",
+        lat: b.lat,
+        lng: b.lon,
+        status: b.delay_prediction > 15 ? "critical-delay" : b.delay_prediction > 5 ? "minor-delay" : "on-time",
+        delay: Math.round(b.delay_prediction || 0),
+        occupancy: Math.floor(Math.random() * 50) + 20, // Mock occupancy
+        nextStop: "Next Stop", // Mock
+        driver: "Unknown Driver" // Mock
+      }));
+      setBuses(mappedBuses);
+    }
+  }, [liveBuses]);
+
+
+  // Keep the toggle for simulation/live connection
+  const toggleConnection = () => {
+    setConnected(!connected);
+  };
 
   useEffect(() => {
     if (selected) {
@@ -102,7 +117,7 @@ export default function LiveMap() {
         </div>
         <div className="flex items-center gap-4 text-xs">
           <button
-            onClick={connected ? stopSimulation : startSimulation}
+            onClick={toggleConnection}
             className={cn(
               "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-medium transition-colors",
               connected

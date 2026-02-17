@@ -1,36 +1,12 @@
 import { FileBarChart, Download, Calendar, TrendingUp, Clock, Bus, Users } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { fetchReportsData } from "@/services/api";
+import { ReportsData } from "@/types";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   PieChart, Pie, Cell,
 } from "recharts";
-
-const weeklyDelay = [
-  { day: "Mon", before: 12.5, after: 7.2 },
-  { day: "Tue", before: 10.8, after: 6.4 },
-  { day: "Wed", before: 14.2, after: 8.1 },
-  { day: "Thu", before: 11.3, after: 6.9 },
-  { day: "Fri", before: 15.6, after: 9.2 },
-  { day: "Sat", before: 8.4, after: 5.1 },
-  { day: "Sun", before: 6.2, after: 4.0 },
-];
-
-const fleetUtil = [
-  { name: "Active", value: 1247, color: "hsl(152, 60%, 36%)" },
-  { name: "Maintenance", value: 85, color: "hsl(36, 80%, 48%)" },
-  { name: "Idle", value: 38, color: "hsl(0, 72%, 50%)" },
-  { name: "Standby", value: 120, color: "hsl(220, 70%, 35%)" },
-];
-
-const congestionData = [
-  { zone: "Vijayawada Central", score: 92 },
-  { zone: "Tirupati Temple Rd", score: 88 },
-  { zone: "Vizag Beach Rd", score: 82 },
-  { zone: "Guntur Bus Stand", score: 76 },
-  { zone: "Kurnool NH-44", score: 71 },
-  { zone: "Nellore Market", score: 65 },
-  { zone: "Kadapa Ring Rd", score: 58 },
-  { zone: "Ongole Station", score: 42 },
-];
 
 const chartTooltipStyle = {
   contentStyle: { backgroundColor: "hsl(0, 0%, 100%)", border: "1px solid hsl(220, 13%, 86%)", borderRadius: "6px", fontSize: "12px", color: "hsl(220, 25%, 12%)" },
@@ -40,6 +16,39 @@ const gridColor = "hsl(220, 13%, 90%)";
 const tickStyle = { fontSize: 10, fill: "hsl(220, 10%, 46%)" };
 
 export default function Reports() {
+  const { session } = useAuth();
+
+  const { data: reportsData, isLoading, error } = useQuery<ReportsData>({
+    queryKey: ["reports"],
+    queryFn: () => fetchReportsData(session?.access_token || ""),
+    enabled: true, // Always enabled since backend doesn't require auth
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center text-red-500 bg-red-50 rounded-lg border border-red-200">
+        Failed to load reports data. Please try again later.
+      </div>
+    );
+  }
+
+  if (!reportsData) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        No reports data available.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -60,10 +69,10 @@ export default function Reports() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: "Avg Delay Reduction", value: "-38%", icon: Clock, color: "text-status-ok" },
-          { label: "Fleet Utilization", value: "83.6%", icon: Bus, color: "text-primary" },
-          { label: "Routes Optimized", value: "24", icon: TrendingUp, color: "text-primary" },
-          { label: "Passengers Served", value: "2.4M", icon: Users, color: "text-status-warn" },
+          { label: "Avg Delay Reduction", value: reportsData.avg_delay_reduction, icon: Clock, color: "text-status-ok" },
+          { label: "Fleet Utilization", value: reportsData.fleet_utilization, icon: Bus, color: "text-primary" },
+          { label: "Routes Optimized", value: reportsData.routes_optimized.toString(), icon: TrendingUp, color: "text-primary" },
+          { label: "Passengers Served", value: reportsData.passengers_served, icon: Users, color: "text-status-warn" },
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-3 rounded-lg border border-kpi-border bg-kpi p-3">
             <s.icon className={`h-5 w-5 ${s.color}`} />
@@ -83,7 +92,7 @@ export default function Reports() {
             <h3 className="text-sm font-semibold text-foreground">Before vs After AI Optimization</h3>
           </div>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={weeklyDelay}>
+            <BarChart data={reportsData.weekly_delay}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
               <XAxis dataKey="day" tick={tickStyle} axisLine={false} tickLine={false} />
               <YAxis tick={tickStyle} axisLine={false} tickLine={false} />
@@ -104,8 +113,8 @@ export default function Reports() {
           <div className="flex items-center gap-6">
             <ResponsiveContainer width="50%" height={220}>
               <PieChart>
-                <Pie data={fleetUtil} cx="50%" cy="50%" outerRadius={80} innerRadius={50} dataKey="value" strokeWidth={2} stroke="hsl(0, 0%, 100%)">
-                  {fleetUtil.map((entry, i) => (
+                <Pie data={reportsData.fleet_status} cx="50%" cy="50%" outerRadius={80} innerRadius={50} dataKey="value" strokeWidth={2} stroke="hsl(0, 0%, 100%)">
+                  {reportsData.fleet_status.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Pie>
@@ -113,7 +122,7 @@ export default function Reports() {
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-2">
-              {fleetUtil.map((item) => (
+              {reportsData.fleet_status.map((item) => (
                 <div key={item.name} className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                   <span className="text-xs text-muted-foreground">{item.name}</span>
@@ -131,13 +140,13 @@ export default function Reports() {
             <h3 className="text-sm font-semibold text-foreground">Peak Congestion Zones</h3>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={congestionData} layout="vertical">
+            <BarChart data={reportsData.congestion_zones} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} horizontal={false} />
               <XAxis type="number" tick={tickStyle} axisLine={false} tickLine={false} domain={[0, 100]} />
               <YAxis dataKey="zone" type="category" tick={tickStyle} axisLine={false} tickLine={false} width={120} />
               <Tooltip {...chartTooltipStyle} />
               <Bar dataKey="score" radius={[0, 4, 4, 0]} name="Congestion Score">
-                {congestionData.map((entry, i) => (
+                {reportsData.congestion_zones.map((entry, i) => (
                   <Cell key={i} fill={entry.score > 80 ? "hsl(0, 72%, 50%)" : entry.score > 60 ? "hsl(36, 80%, 48%)" : "hsl(152, 60%, 36%)"} />
                 ))}
               </Bar>

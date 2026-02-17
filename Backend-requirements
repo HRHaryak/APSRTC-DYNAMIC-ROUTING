@@ -1,0 +1,284 @@
+Backend Implementation Plan
+
+AI-Driven Dynamic Route Optimization Platform (APSRTC)
+
+1. Backend Objectives
+
+The backend must:
+
+Ingest real-time & batch transport data
+
+Run AI/ML models for prediction & forecasting
+
+Use Mistral AI for reasoning & explanations
+
+Store & manage data securely via Supabase
+
+Expose stable APIs to frontend
+
+Be scalable, auditable, DPDP-compliant
+
+2. Technology Stack (Final)
+Layer	Technology
+API Framework	FastAPI (Python)
+Async Server	Uvicorn + Gunicorn
+AI / ML	scikit-learn, XGBoost, PyTorch
+LLM	Mistral AI (API)
+Database	Supabase (Postgres)
+Realtime	Supabase Realtime / WebSockets
+Auth	Supabase Auth (JWT)
+Background Jobs	Celery / RQ
+Caching	Redis
+Storage	Supabase Storage
+Observability	OpenTelemetry + logs
+3. Backend Architecture
+Data Sources
+(GPS, Ticketing, Traffic)
+        ↓
+Ingestion Services
+        ↓
+Feature Engineering
+        ↓
+ML Models
+        ↓
+Decision Engine + Mistral AI
+        ↓
+FastAPI Services
+        ↓
+Supabase (DB + Auth)
+
+4. Supabase Data Model (Core Tables)
+A. Operational Tables
+buses(bus_id, depot_id, capacity)
+routes(route_id, city, length_km)
+stops(stop_id, lat, lon, route_id)
+gps_logs(bus_id, timestamp, lat, lon, speed)
+ticket_logs(route_id, stop_id, timestamp, count)
+
+B. Analytics Tables
+delay_predictions(bus_id, route_id, predicted_delay, confidence, ts)
+demand_forecasts(route_id, time_slot, predicted_demand)
+route_utilization(route_id, utilization_score)
+
+C. AI Decision Tables
+ai_recommendations(
+  rec_id,
+  route_id,
+  recommendation,
+  reason,
+  expected_impact,
+  confidence,
+  status
+)
+
+D. Governance
+audit_logs(user_id, action, timestamp)
+planner_feedback(rec_id, action, comment)
+
+5. Authentication & RBAC
+
+Using Supabase Auth:
+
+Users: planner, control_room, depot, admin
+
+JWT verified by FastAPI middleware
+
+Role enforced at API level
+
+Depends(require_role("planner"))
+
+6. Data Ingestion Layer
+GPS Ingestion
+
+REST endpoint / streaming
+
+Batch insert to Supabase
+
+Deduplication & sanity checks
+
+POST /ingest/gps
+
+Ticketing Ingestion
+
+Batch uploads / scheduled pulls
+
+POST /ingest/tickets
+
+7. Feature Engineering Services
+Scheduled Jobs
+
+Rolling averages
+
+Peak-hour tagging
+
+Route segment delays
+
+Runs every:
+
+5 mins (GPS)
+
+30 mins (demand)
+
+Stored in:
+
+feature_store
+
+8. AI / ML Services
+1️⃣ Delay Prediction Service
+
+Models
+
+XGBoost (primary)
+
+LSTM (advanced)
+
+Endpoint
+
+GET /ai/delay/{bus_id}
+
+
+Output
+
+{
+  "delay": 8.3,
+  "confidence": 0.88
+}
+
+2️⃣ Demand Forecasting Service
+
+Models
+
+SARIMA
+
+LSTM
+
+Endpoint
+
+GET /ai/demand/{route_id}
+
+3️⃣ Anomaly Detection Service
+
+Purpose
+
+Overcrowding
+
+Underutilization
+
+Tech
+
+Isolation Forest
+
+DBSCAN
+
+9. Decision Engine (Hybrid AI)
+Inputs
+
+Delay predictions
+
+Demand forecasts
+
+Fleet availability
+
+Logic
+
+Rule-based filters
+
+ML scoring
+
+Confidence thresholds
+
+Produces structured facts for Mistral AI.
+
+10. Mistral AI Integration (Key Part)
+System Prompt (Backend)
+You are an AI transport planning assistant for APSRTC.
+Explain AI insights clearly for government planners.
+Avoid jargon. Justify every recommendation.
+Focus on safety, efficiency, and passenger comfort.
+
+Invocation Pattern
+prompt = f"""
+Route: {route_id}
+Delay Forecast: {delay}
+Demand: {demand}
+Utilization: {util}
+
+Generate recommendation with reason and impact.
+"""
+
+response = mistral.chat(prompt)
+
+Output Stored as:
+{
+  "recommendation": "...",
+  "reason": "...",
+  "impact": "Delay reduction ~12%",
+  "confidence": 0.82
+}
+
+11. API Layer (FastAPI)
+Core APIs
+GET  /dashboard/kpis
+GET  /buses/live
+GET  /routes/analytics
+GET  /ai/recommendations
+POST /ai/feedback
+
+Error Handling
+
+Central exception handler
+
+Graceful fallback for AI failure
+
+12. Background Processing
+Jobs
+
+Model retraining (nightly)
+
+Feature recompute
+
+AI recommendation refresh
+
+Tech:
+
+Celery + Redis
+
+13. Realtime Updates
+
+Options:
+
+Supabase Realtime
+
+WebSocket via FastAPI
+
+Used for:
+
+Live bus locations
+
+Delay alerts
+
+14. DPDP & Security Compliance
+
+No PII storage
+
+Route-level aggregation
+
+Encrypted connections
+
+Role-based data exposure
+
+Full audit logs
+
+15. Performance Targets
+Metric	Target
+API response	< 300ms
+AI explainability	< 2 sec
+Ingestion latency	< 10 sec
+16. Backend Delivery Timeline (10 Weeks)
+Week 1–2
+
+Supabase schema
+
+Auth & RBAC
+
+API skeleton
